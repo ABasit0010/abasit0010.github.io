@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESP32-C3 Portable ECG Monitor with TFT Display, microSD Logging &amp; Li-ion BMS | Portfolio</title>
+  <meta name="description" content="Custom ESP32-C3 board with an AD8232 ECG analog front-end, SPI TFT display, microSD data logging, USB-C input and a BQ25895 switch-mode Li-ion battery management system, by Abdul Basit Fiaz.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23020609'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%2300bcd4'/%3E%3Cpath d='M16 4v6M16 22v6M4 16h6M22 16h6' stroke='%2300bcd4' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Shared site stylesheet — not modified -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <style>
+    /* Small scoped additions for project pages — built entirely from
+       global CSS variables already defined in style.css, so every
+       project page stays visually identical to the rest of the site. */
+    .proj-sec { margin-bottom: 22px; }
+    .proj-sec h2 {
+      font-size: 1.25em; color: #fff; margin: 0 0 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .proj-sec h2::before {
+      content: ''; width: 4px; height: 20px; border-radius: 3px;
+      background: var(--teal); display: inline-block;
+    }
+    .proj-sec p { color: var(--text-body); font-size: 14.5px; line-height: 1.8; margin: 0; }
+    .proj-sec ul { margin: 0; padding-left: 20px; color: var(--text-body); font-size: 14.5px; line-height: 1.9; }
+    .proj-sec li::marker { color: var(--teal); }
+    .proj-sec p + ul, .proj-sec ul + p { margin-top: 12px; }
+    .proj-sec pre {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--r-md, 10px); padding: 14px 16px; overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7;
+      color: var(--teal); margin: 12px 0 0;
+    }
+    .proj-card { padding: 28px 30px; }
+.proj-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  
+    /* ---- Image display: compact hero + click-to-zoom lightbox ---- */
+    .proj-hero-img {
+      display: block;
+      width: 100%;
+      max-width: 460px;
+      margin: 0 auto 40px;
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-card);
+      cursor: zoom-in;
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .proj-hero-img:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 22px 45px rgba(0,0,0,.4);
+    }
+    /* Use this wrapper any time you want MORE THAN ONE image on a page —
+       just add extra hero-image tags inside it and the
+       grid will re-flow and size them automatically. */
+    .proj-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+    .proj-gallery .proj-hero-img {
+      max-width: none;
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      margin: 0;
+    }
+    .lightbox-overlay {
+      position: fixed; inset: 0;
+      background: rgba(2,6,9,0.92);
+      display: none; align-items: center; justify-content: center;
+      z-index: 9999; padding: 30px; cursor: zoom-out;
+    }
+    .lightbox-overlay.active { display: flex; }
+    .lightbox-overlay img {
+      max-width: 95vw; max-height: 95vh;
+      border-radius: 12px;
+      box-shadow: 0 30px 70px rgba(0,0,0,.6);
+      animation: lightboxPop .25s ease;
+      cursor: zoom-out;
+    }
+    @keyframes lightboxPop {
+      from { transform: scale(.85); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+  
+    /* ---- Related Files: report / schematic / layout / design / firmware / sim ---- */
+    .file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 4px; }
+    .file-chip {
+      display: flex; align-items: center; gap: 12px; padding: 13px 16px;
+      border-radius: var(--r-md, 12px); background: rgba(255,255,255,0.03);
+      border: 1px solid var(--card-border); text-decoration: none; color: #fff;
+      transition: border-color .2s, background .2s, transform .2s;
+    }
+    .file-chip:hover { border-color: var(--card-border-hover); background: rgba(0,188,212,0.06); transform: translateY(-2px); }
+    .file-chip .file-ico {
+      width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,188,212,0.1); color: var(--teal);
+    }
+    .file-chip .file-ico svg { width: 17px; height: 17px; }
+    .file-chip .file-txt { display: flex; flex-direction: column; font-size: 13.5px; font-weight: 500; line-height: 1.3; }
+    .file-chip .file-txt em { font-style: normal; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-top: 3px; letter-spacing: .5px; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER (inherited from global design) -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <!-- TODO: point these two nav-arrow links at the actual previous/next project pages in your sequence -->
+        <a href="project25.html" class="nav-arrow" title="Previous project" aria-label="Previous page">‹</a>
+        <div class="logo"><a href="../index.html"><span class="logo-mark"></span>Portfolio<!--Electro<span>Mania--></span></a></div>
+      </div>
+      <nav class="main-nav" id="mainNav">
+        <a href="../index.html">Home</a>
+        <a href="../about.html">About</a>
+        <!--
+        <a href="../experience.html">Experience</a>
+        -->
+        <a href="../projects.html" class="active">Projects</a>
+        <a href="../skills.html">Skills</a>
+        <a href="../certifications.html">Certifications</a>
+        <!--<a href="../material.html">Material</a>
+        <a href="../blog.html">Blog</a>-->
+        <a href="../contact.html">Contact</a>
+      </nav>
+      <div class="header-right">
+        <a href="project1.html" class="nav-arrow" title="Next project" aria-label="Next page">›</a>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+  <div class="crumb-bar">
+    <div class="crumb">
+      <a href="../index.html">Home</a><span class="sep">›</span>
+      <a href="../projects.html">Projects</a><span class="sep">›</span>
+      <span class="here">ESP32-C3 Portable ECG Monitor</span>
+    </div>
+  </div>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="page-hero-in">
+      <h1>ESP32-C3 Portable <span class="hi">ECG Monitoring Board</span></h1>
+      <p class="sub">A battery-powered ESP32-C3 biomedical board that picks up the heart's electrical signal through a 3-electrode cable, conditions it with an AD8232 analog front-end, draws the live waveform on an SPI TFT display and logs it to a microSD card — powered by a USB-C input and a switch-mode Li-ion battery management system on a 4-layer PCB.</p>
+      <div class="proj-tags">
+        <span class="tag">ESP32-C3</span>
+        <span class="tag">AD8232 AFE</span>
+        <span class="tag">BQ25895 BMS</span>
+        <span class="tag">SPI TFT Display</span>
+        <span class="tag">microSD Logging</span>
+        <span class="tag">USB-C</span>
+        <span class="tag">4-Layer PCB</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="trace-divider" aria-hidden="true">
+    <svg viewBox="0 0 1160 18" preserveAspectRatio="none">
+      <path d="M0 9 H480 M520 9 H1160" />
+      <circle cx="500" cy="9" r="3.4"/>
+    </svg>
+  </div>
+
+  <!-- PROJECT CONTENT -->
+  <section class="reveal">
+    <div class="container" style="max-width:900px; padding:0 24px 20px;">
+
+      <div class="card proj-card">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Abstract</h2>
+          <p>
+            This project is a compact, battery-powered ECG (electrocardiogram) monitoring board built around the ESP32-C3. Three electrodes connect through a standard 3.5&nbsp;mm jack into an AD8232 single-lead heart-rate analog front-end, which amplifies the few-millivolt signal coming off the body and filters out motion artefacts, electrode drift and mains interference before handing a clean waveform to the ESP32-C3's ADC. The microcontroller renders that waveform live on an SPI TFT display and simultaneously writes the samples to a microSD card for later review. Power comes from USB-C or a single Li-ion cell, managed by a BQ25895 switch-mode charger that charges the battery and runs the board at the same time, followed by a buck converter for the digital rail and a separate low-noise LDO for the analog front-end. An onboard CP2102N USB-to-UART bridge with auto-reset circuitry allows one-cable firmware uploads, and the whole design is routed on a 4-layer PCB with a dedicated ground plane and length-tuned USB routing.
+          </p>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Objectives</h2>
+          <ul>
+            <li>Acquire a single-lead ECG signal from RA/LA/RL electrodes using an AD8232 analog front-end with integrated filtering and right-leg drive.</li>
+            <li>Digitise the conditioned waveform on the ESP32-C3's ADC and detect electrode-off conditions in firmware.</li>
+            <li>Display the live ECG trace and heart rate on an SPI-driven TFT display.</li>
+            <li>Log recorded samples to a microSD card over the same SPI bus for offline analysis.</li>
+            <li>Design a modern USB-C input stage with ESD protection and overcurrent protection.</li>
+            <li>Build a switch-mode Li-ion battery management system able to charge the cell and power the board simultaneously.</li>
+            <li>Split the supply into a switching rail for digital logic and a separate low-noise linear rail for the analog front-end.</li>
+            <li>Provide onboard USB-to-UART programming with automatic reset/bootloader entry, plus manual Boot and Reset buttons.</li>
+            <li>Route the design as a 4-layer PCB with a solid ground plane, an antenna keep-out and length-matched USB data lines.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Hardware Components</h2>
+          <ul>
+            <li>ESP32-C3-WROOM-02-H4 module (U6) &mdash; main Wi-Fi/BLE RISC-V processor running acquisition, display and logging</li>
+            <li>AD8232 single-lead heart-rate monitor front-end (U4) &mdash; instrumentation amplifier, filtering and right-leg drive for the ECG signal</li>
+            <li>3.5&nbsp;mm electrode jack (J3) &mdash; RA/LA/RL electrode cable input</li>
+            <li>BQ25895RTWR I&sup2;C switch-mode battery charger (U1) &mdash; Li-ion charging with power-path management</li>
+            <li>TPS62840 synchronous buck converter (U2) &mdash; high-efficiency 3.3&nbsp;V digital rail</li>
+            <li>TPS7A2009 low-noise LDO (U8) &mdash; clean, isolated analog rail for the AD8232</li>
+            <li>USB-C 2.0 receptacle (J1) with resettable fuse (F1) and USBLC6-2SC6 ESD array (U7) &mdash; protected power and data input</li>
+            <li>CP2102N-A02-QFN20 USB-to-UART bridge (U5) &mdash; onboard programmer and serial monitor with TX/RX activity LEDs (D5, D6)</li>
+            <li>BC817 transistors (Q1, Q3) &mdash; automatic DTR/RTS reset &amp; bootloader-entry circuit</li>
+            <li>Boot (S1) &amp; Reset (S2) tactile switches &mdash; manual programming control</li>
+            <li>9-pin TFT display connector (J5) &mdash; SPI display interface with reset and data/command control</li>
+            <li>microSD card socket (J2) &mdash; SPI-mode storage for recorded ECG data</li>
+            <li>Li-ion/LiPo battery connector (J4) &mdash; single-cell battery input</li>
+            <li>Status LEDs (LED1, LED2) &mdash; charger state and 3.3&nbsp;V rail indication</li>
+            <li>Mounting holes H1&ndash;H4 &mdash; board and display standoff mounting</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Power Architecture &amp; Battery Management System</h2>
+          <p style="margin-bottom:16px;">Power enters through the USB-C receptacle (J1), where CC pull-down resistors identify the board as a sink so a USB-C host applies bus voltage, a resettable PTC fuse (F1) limits fault current, and a USBLC6-2SC6 array (U7) clamps ESD strikes on the data lines. VBUS then feeds the BQ25895 (U1), a synchronous switch-mode charger rather than a linear one, so charging stays efficient and the IC stays cool. Its integrated buck stage, built around the switching node and inductor L2, steps the input down to charge a single Li-ion cell connected at J4, while its power-path management keeps the SYS rail alive directly from USB &mdash; the board therefore runs and charges at the same time, and switches over to the battery without a glitch when the cable is pulled. A thermistor divider on the TS pin lets the charger pause charging if the cell gets too hot, a programming resistor sets the input current limit, and the D+/D&minus; lines let it detect what kind of USB adapter is attached so it can safely draw more current from a charger than from a data port. Charge and fault states are reported both on LED1 and over I&sup2;C, so the ESP32-C3 can read battery status and reconfigure the charger in firmware.</p>
+          <p style="margin-bottom:16px;">The SYS rail then feeds the TPS62840 (U2), a high-efficiency synchronous buck converter chosen for its very low quiescent current, which generates the main 3.3&nbsp;V digital rail for the microcontroller, display, microSD card and USB bridge; LED2 confirms the rail is live. Because a switching regulator inevitably puts ripple on its output and an ECG front-end works with signals of only a few millivolts, the digital rail is not used for the analog section. Instead it is passed through a TPS7A2009 low-noise LDO (U8) to produce a separate, quiet analog supply dedicated to the AD8232. This two-stage arrangement keeps the efficiency of a switcher where the current is high and the noise rejection of a linear regulator where the signal is delicate.</p>
+          <img class="proj-hero-img" src="../images/ECG1.png" alt="USB-C input, BQ25895 battery management, buck regulator and low-noise LDO schematic" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>ECG Analog Front-End</h2>
+          <p style="margin-bottom:16px;">The heart of the design is the AD8232 (U4), an integrated single-lead heart-rate front-end. Electrodes are wired in through a 3.5&nbsp;mm jack (J3), with the right-arm and left-arm electrodes feeding the differential inputs and the right-leg electrode acting as the drive reference. Series resistors on both input lines, together with high-value bias resistors, protect the inputs and set the DC bias point while the electrodes float on the body. The chip's instrumentation amplifier takes the tiny voltage difference between the two arm electrodes and rejects everything common to both of them &mdash; mains hum and body-coupled noise in particular &mdash; which is exactly what makes a usable trace possible from a signal this small.</p>
+          <p style="margin-bottom:16px;">Around that core amplifier, the external passives configure the signal chain. The high-pass feedback network on the HPDRIVE/HPSENSE pins removes electrode half-cell offset and the slow baseline wander caused by breathing and movement, so the trace stays centred on screen instead of drifting off it. The uncommitted operational amplifier is wired as an active low-pass filter to strip high-frequency and EMI content above the ECG band, and its gain sets the final signal swing so the waveform uses as much of the ESP32-C3's ADC range as possible. The right-leg drive amplifier feeds an inverted version of the common-mode noise back into the body through the RL electrode, actively cancelling mains interference at the source. A reference buffer generates the mid-supply level the whole single-supply chain sits on, so the negative half of the waveform is preserved. Finally, the lead-off detection outputs (LO+/LO&minus;) flag a disconnected or dry electrode, and the shutdown pin lets firmware power the front-end down between recordings to save battery.</p>
+          <img class="proj-hero-img" src="../images/ECG3.png" alt="AD8232 ECG analog front-end and 3.5 mm electrode jack schematic" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>ESP32-C3 Core, Programming Interface &amp; microSD Storage</h2>
+          <p style="margin-bottom:16px;">The ESP32-C3-WROOM-02-H4 module (U6) runs the whole system. Its ADC input samples the conditioned waveform coming out of the analog front-end, two GPIOs monitor the lead-off flags so the firmware can warn the user when an electrode falls off, and another GPIO drives the front-end's shutdown pin. An I&sup2;C pair links the processor to the battery charger for live battery and charging status, while a shared SPI bus &mdash; clock, MOSI and MISO, with small series damping resistors to soften the fast edges and keep ringing off the lines &mdash; serves both the display and the microSD card, each selected by its own chip-select line so the two peripherals take turns on the same bus.</p>
+          <p style="margin-bottom:16px;">The microSD socket (J2) is wired in SPI mode, giving the board removable, effectively unlimited storage for recorded ECG sessions; local decoupling sits right at the card and a pull-up holds the card's chip select in a defined state during power-up. Programming is handled entirely onboard by the CP2102N USB-to-UART bridge (U5), which takes VBUS and the USB data pair straight from the connector and translates them into the serial lines connected to the module's UART. A pair of BC817 transistors (Q1, Q3) sits between the bridge's DTR/RTS handshake lines and the module's enable and boot pins; wired in this cross-coupled arrangement they automatically pulse reset and hold the boot pin low at exactly the right moment, so a firmware upload runs from one USB-C cable with no button presses. Manual Boot (S1) and Reset (S2) switches remain on the board as a fallback, and green/red activity LEDs give a visual indication of serial traffic in each direction.</p>
+          <img class="proj-hero-img" src="../images/ECG2.png" alt="ESP32-C3 module, CP2102N USB-to-UART bridge and microSD card schematic" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>TFT Display Interface, Boot/Reset Controls &amp; Auto-Program Circuit</h2>
+          <p style="margin-bottom:16px;">A 9-pin header (J5) carries the SPI TFT display: chip select, reset and a data/command line alongside the shared clock and data pair, plus the 3.3&nbsp;V supply and ground. The data/command line tells the display controller whether an incoming byte is a command or pixel data, the reset line guarantees a clean controller start-up, and a pull-up holds chip select inactive until the ESP32-C3 takes control of the bus so the display does not respond to traffic meant for the microSD card. Firmware uses this interface to draw the scrolling ECG trace, the heart-rate figure and status indicators such as electrode-off warnings and battery state.</p>
+          <p style="margin-bottom:16px;">The same sheet holds the user controls and the automatic programming circuit: Boot (S1) and Reset (S2) tactile switches with RC debouncing for manual bootloader entry, and the two BC817 transistors driven from the USB bridge's DTR and RTS lines that sequence the module into download mode on their own. Between them, the board supports both hands-free uploads over USB-C and the manual recovery route if a firmware image ever leaves the module unresponsive.</p>
+          <img class="proj-hero-img" src="../images/ECG4.png" alt="TFT display connector, Boot/Reset buttons and auto-program transistor circuit schematic" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>System Working</h2>
+          <ul>
+            <li>Electrodes on the chest or limbs pick up the heart's electrical activity and pass it into the board through the 3.5&nbsp;mm jack.</li>
+            <li>The AD8232 amplifies the differential signal, rejects common-mode noise, removes baseline drift and low-pass filters the result into a clean, centred waveform.</li>
+            <li>The right-leg drive electrode feeds cancellation current back into the body to suppress mains interference before it ever reaches the amplifier.</li>
+            <li>The ESP32-C3 samples the conditioned waveform on its ADC at a fixed rate and buffers the data in RAM.</li>
+            <li>Firmware detects R-peaks in the buffered signal to calculate heart rate, and watches the lead-off flags to warn when an electrode loses contact.</li>
+            <li>The waveform and heart rate are rendered to the SPI TFT display, while the sample stream is written to the microSD card in blocks.</li>
+            <li>The BQ25895 keeps the system rail alive from either USB-C or the battery and reports charge status to the processor over I&sup2;C, so the board can run untethered and record while charging.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>PCB Layout &amp; 4-Layer Stack-up</h2>
+          <p style="margin-bottom:16px;">The board is routed as a 4-layer stack-up: signal traces on the top and bottom layers, a continuous ground plane on an inner layer to give every return path a short, uninterrupted route, and an inner power layer for distributing the system and 3.3&nbsp;V rails. The floorplan separates the design by function, with the schematic's blocks preserved on the copper: the USB-C input, charger and switching regulator are grouped along one side, the ECG front-end is placed in its own quiet corner as far as possible from the switching node and inductors, and the display and microSD interfaces sit together near the board edge where their connectors land.</p>
+          <p style="margin-bottom:16px;">Around the ESP32-C3 module, a keep-out region is cleared of copper on every layer beneath the antenna and placed against the board edge so the RF pattern is not detuned. The USB data lines are routed as a differential pair with a short serpentine section length-tuning the two traces to match, keeping the pair balanced for reliable enumeration. Decoupling capacitors are placed tight against the supply pins of the module, charger, regulators and analog front-end, the switching regulators' input/output loops are kept small to limit radiated noise, and the analog rail is routed away from digital traffic so switching activity does not couple into the ECG signal. Mounting holes at all four corners anchor the board and carry the standoffs that hold the TFT display above it.</p>
+          <!-- Two layout views side by side; add more .proj-hero-img tags here and the grid re-flows automatically -->
+          <div class="proj-gallery">
+            <img class="proj-hero-img" src="../images/ECGL1.png" alt="ECG board PCB layout showing routed copper layers and functional blocks" onclick="openLightbox(this.src, this.alt)">
+            <img class="proj-hero-img" src="../images/ECGL2.png" alt="ECG board PCB layout with ground and power planes enabled" onclick="openLightbox(this.src, this.alt)">
+          </div>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Testing &amp; Verification</h2>
+          <ul>
+            <li>USB-C input verified for correct sink detection, overcurrent protection and ESD clamping before any active parts were populated.</li>
+            <li>Charging cycle checked end to end through the BQ25895, with charge state confirmed on LED1 and read back over I&sup2;C.</li>
+            <li>Power-path handover tested by removing and reinserting the USB-C cable while the board was running, confirming an uninterrupted system rail.</li>
+            <li>Buck converter rail checked for regulation and ripple across the battery's full discharge range; LDO output verified for low noise on the analog rail.</li>
+            <li>AD8232 output observed on a scope with electrodes attached, confirming a clean, centred waveform with visible P-QRS-T complexes.</li>
+            <li>Lead-off detection verified by disconnecting each electrode in turn and checking the corresponding GPIO flag.</li>
+            <li>SPI bus arbitration tested with both the TFT display and the microSD card active, confirming no contention between chip selects.</li>
+            <li>microSD read/write verified with recorded sample files replayed and plotted on a PC.</li>
+            <li>CP2102N auto-reset programming cycle verified for one-cable firmware uploads via esptool, and Wi-Fi range checked to confirm the antenna keep-out is effective.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 3D renders: bare board and with the TFT display mounted -->
+      <div class="proj-gallery">
+        <img class="proj-hero-img" src="../images/ECG3D1.png" alt="ESP32-C3 ECG monitoring board — 3D render, bare board" onclick="openLightbox(this.src, this.alt)">
+        <img class="proj-hero-img" src="../images/ECG3D2.png" alt="ESP32-C3 ECG monitoring board — 3D render with TFT display mounted" onclick="openLightbox(this.src, this.alt)">
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Conclusion</h2>
+          <p>
+            Bringing a biomedical analog front-end, a colour display, removable storage and a switch-mode battery system onto one small 4-layer board made for a genuinely portable, self-contained ECG monitor. The interesting part of the design was the tension between the two halves of it: a switching charger and buck converter on one side, drawing real current and generating real noise, and a front-end on the other side working with signals thousands of times smaller. Solving that with a split supply, a dedicated low-noise linear rail, careful physical separation and a solid ground plane was the core lesson. Along the way the project built practical experience in instrumentation amplifier and filter design, Li-ion power-path charging, shared SPI bus design across multiple peripherals, USB-C input protection, and RF-aware, length-matched routing on a multi-layer stack-up.
+          </p>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Related Files</h2>
+          <div class="file-grid">
+            <!-- Project Report -->
+            <a class="file-chip" href="../files/esp32c3-ecg-report.pdf" target="_blank" rel="noopener noreferrer">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></svg></span>
+              <span class="file-txt">Project Report<em>PDF</em></span>
+            </a>
+            <!-- Schematic -->
+            <a class="file-chip" href="../files/esp32c3-ecg-schematic.pdf" target="_blank" rel="noopener noreferrer">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l1-3 2 6 2-6 2 6 2-6 1 3h4"/></svg></span>
+              <span class="file-txt">Schematic<em>PDF</em></span>
+            </a>
+            <!-- PCB Layout -->
+            <a class="file-chip" href="../files/esp32c3-ecg-layout.pdf" target="_blank" rel="noopener noreferrer">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.3" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.3" fill="currentColor" stroke="none"/><path d="M9.3 8H16v6.7"/></svg></span>
+              <span class="file-txt">PCB Layout<em>PDF</em></span>
+            </a>
+            <!-- Circuit Design Files -->
+            <a class="file-chip" href="../files/esp32c3-ecg-design-files.zip" target="_blank" rel="noopener noreferrer">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+              <span class="file-txt">Circuit Design Files<em>ZIP</em></span>
+            </a>
+            <!-- Firmware / Code -->
+            <a class="file-chip" href="../files/esp32c3-ecg-firmware.zip" target="_blank" rel="noopener noreferrer">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18-5-6 5-6M15 6l5 6-5 6"/></svg></span>
+              <span class="file-txt">Firmware / Code<em>ZIP</em></span>
+            </a>
+            <!-- Simulation Files -->
+            <a class="file-chip" href="../files/esp32c3-ecg-simulation.zip" target="_blank" rel="noopener noreferrer">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg></span>
+              <span class="file-txt">Simulation Files<em>ZIP</em></span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER (inherited from global design) -->
+  <footer class="site-footer">
+    <div class="footer-in">
+      <div class="footer-brand">
+        <div class="logo"><a href="../index.html"><span class="logo-mark"></span>Portfolio<!--Electro<span>Mania--></span></a></div>
+        <p>A portfolio and knowledge-sharing platform for electronics &amp; embedded systems engineering.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Site</h4>
+        <a href="../index.html">Home</a>
+        <a href="../about.html">About</a>
+        <a href="../projects.html">Projects</a>
+        <a href="../skills.html">Skills</a>
+      </div>
+      <div class="footer-col">
+        <h4>More</h4>
+        <!--<a href="../material.html">Study Material</a>
+        <a href="../blog.html">Blog</a>-->
+        <a href="../certifications.html">Certifications</a>
+        <a href="../contact.html">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <a href="https://www.linkedin.com/in/abdul-basit-fiaz-1138a427a" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://github.com/ABasit0010" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://youtube.com/@excellencewithelectromania1?si=0SN2yeCCjKuNkH5s">Youtube</a>
+        <a href="mailto:abasitofficial007@gmail.com">Email</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 <!--ElectroMania-->Abdul Basit. All rights reserved.</p>
+      <a href="#" class="back-to-top" aria-label="Back to top" title="Back to top">↑</a>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+
+  <!-- Fullscreen image lightbox: click any .proj-hero-img to open, click again to close -->
+  <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+    <img id="lightboxImg" src="" alt="">
+  </div>
+  <script>
+    function openLightbox(src, alt) {
+      var overlay = document.getElementById('lightboxOverlay');
+      var img = document.getElementById('lightboxImg');
+      img.src = src;
+      img.alt = alt || '';
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      var overlay = document.getElementById('lightboxOverlay');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  </script>
+
+</body>
+</html>
