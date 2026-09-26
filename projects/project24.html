@@ -129,7 +129,7 @@
         <a href="../contact.html">Contact</a>
       </nav>
       <div class="header-right">
-        <a href="project25.html" class="nav-arrow" title="Next project" aria-label="Next page">›</a>
+        <a href="project6.html" class="nav-arrow" title="Next project" aria-label="Next page">›</a>
         <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
       </div>
     </div>
@@ -171,7 +171,7 @@
         <div class="proj-sec" style="margin-bottom:0;">
           <h2>Abstract</h2>
           <p>
-            This project focuses on designing a second-order Butterworth low-pass active filter using the Sallen-Key topology to meet specific attenuation and gain requirements. The filter was simulated in Proteus and MATLAB, and a physical PCB was fabricated using EasyEDA.
+            This project focuses on designing a second-order Butterworth low-pass active filter using the Sallen-Key topology to meet specific attenuation and gain requirements. The filter was simulated in Ltspice and MATLAB, and designed Kicad 2 layer PCB layout and a physical PCB was fabricated.
           </p>
         </div>
       </div>
@@ -200,9 +200,9 @@
           <h2>Component Selection</h2>
           <ul>
             <li>Operational amplifier: LM741</li>
-            <li>R1 = 6.8&nbsp;k&Omega;</li>
-            <li>R2 = 36.3&nbsp;k&Omega; (33&nbsp;k&Omega; + 3.3&nbsp;k&Omega; in series)</li>
-            <li>C1 = 0.01&nbsp;&micro;F &middot; C2 = 0.022&nbsp;&micro;F</li>
+            <li>R1 = 6.2&nbsp;k&Omega;</li>
+            <li>R2 = 82&nbsp;k&Omega; (33&nbsp;k&Omega; + 3.3&nbsp;k&Omega; in series)</li>
+            <li>C1 = 10&nbsp;nF &middot; C2 = 10&nbsp;nF</li>
             <li>Feedback resistor (R<sub>f</sub>) = 90&nbsp;k&Omega; &middot; Input resistor (R<sub>i</sub>) = 10&nbsp;k&Omega;</li>
           </ul>
         </div>
@@ -237,6 +237,13 @@ Gain  = 1 + (Rf / Ri)</pre>
           </ul>
         </div>
       </div>
+            <div class="proj-gallery">
+        <img class="proj-hero-img" src="../images/lpf100.png" alt="Simulation of the Low Pass Filter at 100Hz" onclick="openLightbox(this.src, this.alt)">
+        <img class="proj-hero-img" src="../images/lpf700.png" alt="Simulation of the Low Pass Filter at 700Hz" onclick="openLightbox(this.src, this.alt)">
+        <img class="proj-hero-img" src="../images/lpf8500.png" alt="Simulation of the Low Pass Filter at 8.5kHz" onclick="openLightbox(this.src, this.alt)">
+        
+      </div>
+
       <div class="card proj-card" style="margin-top:20px;">
         <div class="proj-sec" style="margin-bottom:0;">
           <h2>Performance Evaluation</h2>
@@ -252,11 +259,15 @@ Gain  = 1 + (Rf / Ri)</pre>
         <div class="proj-sec" style="margin-bottom:0;">
           <h2>PCB Fabrication</h2>
           <p>
-            Designed using EasyEDA with dimensions 80&nbsp;mm &times; 70&nbsp;mm. The PCB was etched using ferric chloride, drilled, and soldered to complete the hardware build.
+            Designed using Kicad with dimensions 30&nbsp;mm &times; 40&nbsp;mm. The PCB was etched using ferric chloride, drilled, and soldered to complete the hardware build.
           </p>
         </div>
       </div>
-      <img class="proj-hero-img" src="../images/lowpass-filter.jpg" alt="Low-Pass Active Filter Design" onclick="openLightbox(this.src, this.alt)">
+      <div class="proj-gallery">
+        <img class="proj-hero-img" src="../images/lpfs.png" alt="Low Pass Active Filter Schematic" onclick="openLightbox(this.src, this.alt)">
+        <img class="proj-hero-img" src="../images/lpfl.png" alt="Layout Design" onclick="openLightbox(this.src, this.alt)">
+        <img class="proj-hero-img" src="../images/lpf3d.png" alt="3D View of the Designed PCB" onclick="openLightbox(this.src, this.alt)">
+      </div>
 
       <div class="card proj-card" style="margin-top:20px;">
         <div class="proj-sec" style="margin-bottom:0;">
