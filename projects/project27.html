@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LattePanda Mu Carrier Board | 4-Layer High-Speed PCB Design | Portfolio</title>
+  <meta name="description" content="Custom 4-layer carrier board for the LattePanda Mu with Gigabit Ethernet, USB 3.0, HDMI, M.2 M/E keys, CPU fan control and dual power input, designed in KiCad by Abdul Basit Fiaz.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23020609'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%2300bcd4'/%3E%3Cpath d='M16 4v6M16 22v6M4 16h6M22 16h6' stroke='%2300bcd4' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Shared site stylesheet — not modified -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <style>
+    .proj-sec { margin-bottom: 22px; }
+    .proj-sec h2 {
+      font-size: 1.25em; color: #fff; margin: 0 0 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .proj-sec h2::before {
+      content: ''; width: 4px; height: 20px; border-radius: 3px;
+      background: var(--teal); display: inline-block;
+    }
+    .proj-sec p { color: var(--text-body); font-size: 14.5px; line-height: 1.8; margin: 0; }
+    .proj-sec ul { margin: 0; padding-left: 20px; color: var(--text-body); font-size: 14.5px; line-height: 1.9; }
+    .proj-sec li::marker { color: var(--teal); }
+    .proj-sec p + ul, .proj-sec ul + p { margin-top: 12px; }
+    .proj-sec pre {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--r-md, 10px); padding: 14px 16px; overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7;
+      color: var(--teal); margin: 12px 0 0;
+    }
+    .proj-card { padding: 28px 30px; }
+    .proj-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+
+    /* ---- Image display: compact hero + click-to-zoom lightbox ---- */
+    .proj-hero-img {
+      display: block;
+      width: 100%;
+      max-width: 460px;
+      margin: 0 auto 40px;
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-card);
+      cursor: zoom-in;
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .proj-hero-img:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 22px 45px rgba(0,0,0,.4);
+    }
+    .proj-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+    .proj-gallery .proj-hero-img {
+      max-width: none;
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      margin: 0;
+    }
+    /* Wide images (full schematics, 3D render) keep their full shape */
+    .proj-hero-img.wide { max-width: 100%; height: auto; }
+    .lightbox-overlay {
+      position: fixed; inset: 0;
+      background: rgba(2,6,9,0.92);
+      display: none; align-items: center; justify-content: center;
+      z-index: 9999; padding: 30px; cursor: zoom-out;
+    }
+    .lightbox-overlay.active { display: flex; }
+    .lightbox-overlay img {
+      max-width: 95vw; max-height: 95vh;
+      border-radius: 12px;
+      box-shadow: 0 30px 70px rgba(0,0,0,.6);
+      animation: lightboxPop .25s ease;
+      cursor: zoom-out;
+    }
+    @keyframes lightboxPop {
+      from { transform: scale(.85); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    /* ---- Related Files ---- */
+    .file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 4px; }
+    .file-chip {
+      display: flex; align-items: center; gap: 12px; padding: 13px 16px;
+      border-radius: var(--r-md, 12px); background: rgba(255,255,255,0.03);
+      border: 1px solid var(--card-border); text-decoration: none; color: #fff;
+      transition: border-color .2s, background .2s, transform .2s;
+    }
+    .file-chip:hover { border-color: var(--card-border-hover); background: rgba(0,188,212,0.06); transform: translateY(-2px); }
+    .file-chip .file-ico {
+      width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,188,212,0.1); color: var(--teal);
+    }
+    .file-chip .file-ico svg { width: 17px; height: 17px; }
+    .file-chip .file-txt { display: flex; flex-direction: column; font-size: 13.5px; font-weight: 500; line-height: 1.3; }
+    .file-chip .file-txt em { font-style: normal; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-top: 3px; letter-spacing: .5px; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <!-- TODO: point these two nav-arrow links at the actual previous/next project pages in your sequence -->
+        <a href="project25.html" class="nav-arrow" title="Previous project" aria-label="Previous page">‹</a>
+        <div class="logo"><a href="../index.html"><span class="logo-mark"></span>Portfolio</a></div>
+      </div>
+      <nav class="main-nav" id="mainNav">
+        <a href="../index.html">Home</a>
+        <a href="../about.html">About</a>
+        <a href="../projects.html" class="active">Projects</a>
+        <a href="../skills.html">Skills</a>
+        <a href="../certifications.html">Certifications</a>
+        <a href="../contact.html">Contact</a>
+      </nav>
+      <div class="header-right">
+        <a href="project26.html" class="nav-arrow" title="Next project" aria-label="Next page">›</a>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+  <div class="crumb-bar">
+    <div class="crumb">
+      <a href="../index.html">Home</a><span class="sep">›</span>
+      <a href="../projects.html">Projects</a><span class="sep">›</span>
+      <span class="here">LattePanda Mu Carrier Board</span>
+    </div>
+  </div>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="page-hero-in">
+      <h1>LattePanda Mu <span class="hi">Carrier Board</span></h1>
+      <p class="sub">A 4-layer carrier board for the LattePanda Mu compute module. It adds Gigabit Ethernet, USB 3.0 and 2.0, HDMI, M.2 M-key and E-key slots, a CPU fan header, GPIO headers and two power inputs (12 V DC and 15 V USB-C PD). Designed in KiCad with controlled impedance and short, length-matched high-speed pairs.</p>
+      <div class="proj-tags">
+        <span class="tag">LattePanda Mu</span>
+        <span class="tag">KiCad</span>
+        <span class="tag">High-Speed Design</span>
+        <span class="tag">Controlled Impedance</span>
+        <span class="tag">USB 3.0</span>
+        <span class="tag">HDMI</span>
+        <span class="tag">Gigabit Ethernet</span>
+        <span class="tag">M.2</span>
+        <span class="tag">4-Layer PCB</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="trace-divider" aria-hidden="true">
+    <svg viewBox="0 0 1160 18" preserveAspectRatio="none">
+      <path d="M0 9 H480 M520 9 H1160" />
+      <circle cx="500" cy="9" r="3.4"/>
+    </svg>
+  </div>
+
+  <section class="reveal">
+    <div class="container" style="max-width:900px; padding:0 24px 20px;">
+
+      <div class="card proj-card">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Abstract</h2>
+          <p>
+            The LattePanda Mu is a small x86 compute module, so it needs a carrier board to become a real computer. This project is my own carrier board for it. I made the schematic from the official LattePanda Mu reference design and removed some parts I did not need, mainly the PCIe x4 slot. What is left is a clean board with power input, Ethernet, USB, HDMI, M.2 storage and wireless slots, a fan header and GPIO pins. The board is a 4-layer PCB made for high-speed signals. I used controlled impedance traces, short return paths, short differential pairs and skew tuning to keep signals clean and EMI low.
+          </p>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Objectives</h2>
+          <ul>
+            <li>Make a working carrier board for the LattePanda Mu using the official reference design as the base.</li>
+            <li>Keep only the interfaces that are needed and leave out the extra ones, such as the PCIe slot.</li>
+            <li>Support two power inputs: 12 V DC and 15 V USB-C PD.</li>
+            <li>Add Gigabit Ethernet, USB 3.0, USB 2.0, HDMI, M.2 M-key and M.2 E-key.</li>
+            <li>Use controlled impedance on all high-speed lines (90 Ω, 100 Ω differential and 50 Ω single-ended).</li>
+            <li>Keep all high-speed differential pairs shorter than 75 mm and tune the skew inside each pair.</li>
+            <li>Reduce EMI by keeping return paths short and using solid reference planes.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Hardware Blocks</h2>
+          <ul>
+            <li>LattePanda Mu module connector &mdash; the main connection to the compute module, with a heatsink and fan on top</li>
+            <li>12 V DC jack and 15 V USB-C PD input &mdash; two ways to power the board</li>
+            <li>Buck converters &mdash; make the lower voltage rails from the input</li>
+            <li>CPU fan header &mdash; 4-pin fan with PWM control and tacho feedback</li>
+            <li>GPIO, I&sup2;C and UART pin headers &mdash; with low-capacitance ESD protection arrays</li>
+            <li>Gigabit Ethernet &mdash; PCIe-to-GbE controller, 25 MHz crystal and RJ45 with built-in magnetics</li>
+            <li>2 x USB 3.0 and 2 x USB 2.0 &mdash; stacked Type-A connectors with fuses and ESD protection</li>
+            <li>HDMI output &mdash; with level shifters, ESD protection and AC-coupled data lines</li>
+            <li>M.2 M-key and M.2 E-key sockets &mdash; for fast storage and for Wi-Fi/Bluetooth cards</li>
+            <li>PWR and RST buttons, RTC coin cell holder and test points</li>
+            <li>PCIe x4 slot &mdash; kept in the schematic for future use, but not populated</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Schematic Design</h2>
+          <p style="margin-bottom:16px;">I made the schematic from the LattePanda Mu reference design and the official sources. I kept what I needed and left out some parts, especially PCIe. The design is split into sheets, one for each block, so it is easy to read and check. The top sheet below shows the Mu module and how it connects to all the other blocks.</p>
+          <img class="proj-hero-img wide" src="../images/LPMs1.png" alt="Top-level schematic of the LattePanda Mu carrier board showing the module and all interface blocks" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Power Input</h2>
+          <p style="margin-bottom:16px;">The board takes power from a 12 V DC jack (rated for 6&ndash;10 A) or from a USB-C PD input, where a CH224K chip asks the charger for 15 V. Two buck converters (23 V, 3 A, 500 kHz) then make the lower rails for the module and the peripherals. A small coin cell keeps the RTC running when power is off. The PCIe power section is crossed out because I did not populate it.</p>
+          <img class="proj-hero-img wide" src="../images/LPMs2.png" alt="Power input schematic with 12 V DC, 15 V USB-C PD and buck converters" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>CPU Fan</h2>
+          <p style="margin-bottom:16px;">A 4-pin fan header gives PWM speed control and tacho feedback. The tacho line uses a pull-up and a series resistor to keep the signal safe for the 3.3 V input. A small capacitor and resistor filter the signal, and a diode clamps the spikes that come from the fan motor. The LattePanda Mu already has internal pull-ups, so the external ones are left out. Two spare footprints are kept for a 12 V fan.</p>
+          <img class="proj-hero-img wide" src="../images/LPMs3.png" alt="CPU fan header schematic with PWM and tacho circuit" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>GPIO, I&sup2;C &amp; UART</h2>
+          <p style="margin-bottom:16px;">These are simple pin headers for I&sup2;C, UART and general GPIO, with 3.3 V and GND pins next to them. Each group has a ULC0524P low-capacitance ESD array to protect the module pins from static and wrong connections.</p>
+          <img class="proj-hero-img wide" src="../images/LPMs4.png" alt="GPIO, I2C and UART header schematic with ESD protection arrays" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>PCIe x4 Slot (Not Populated)</h2>
+          <p style="margin-bottom:16px;">The PCIe x4 slot is drawn in the schematic but crossed out, because I decided not to populate it in this version. I kept it so I can add it later if needed. The 220 nF AC coupling capacitors and the power filtering are already planned on the sheet.</p>
+          <img class="proj-hero-img wide" src="../images/LPMs5.png" alt="PCIe x4 slot schematic marked as not populated" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Gigabit Ethernet</h2>
+          <p style="margin-bottom:16px;">A PCIe-to-Gigabit Ethernet controller connects to the module over a PCIe lane. It uses a 25 MHz crystal and sends the four MDI pairs to an RJ45 jack with built-in magnetics and link LEDs. The extra ESD arrays on the MDI lines are not populated, because the added capacitance is not worth it for the small ESD risk.</p>
+          <img class="proj-hero-img wide" src="../images/LPMs6.png" alt="Gigabit Ethernet controller and RJ45 schematic" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>USB 3.0 &amp; USB 2.0</h2>
+          <p style="margin-bottom:16px;">Two stacked USB 3.0 ports and one stacked USB 2.0 connector. Each port has a 1 A fuse and a 22 &micro;F capacitor on VBUS. The SuperSpeed lines have AC coupling capacitors and low-capacitance ESD arrays, and the USB 2.0 data lines have their own ESD protection.</p>
+          <img class="proj-hero-img wide" src="../images/LPMs7.png" alt="USB 3.0 and USB 2.0 connector schematic with ESD protection" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>HDMI Interface</h2>
+          <p style="margin-bottom:16px;">The module's display lines go to the HDMI connector through AC coupling capacitors and termination resistors. MOSFET level shifters connect the 3.3 V host to the 5 V DDC (I&sup2;C) and HPD lines. ESD arrays protect the TMDS lines, a diode blocks reverse current on the 5 V pin, and an LED shows when an HDMI display is active.</p>
+          <img class="proj-hero-img wide" src="../images/LPMs8.png" alt="HDMI interface schematic with level shifters and ESD protection" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>M.2 M-Key &amp; E-Key</h2>
+          <p style="margin-bottom:16px;">The M-key socket is for high-speed storage (NVMe or SATA SSD). The E-key socket is for communication cards such as Wi-Fi and Bluetooth, and it also gives USB, I&sup2;C and UART. Both sockets have decoupling capacitors for high-frequency noise and AC coupling capacitors on the high-speed lines.</p>
+          <img class="proj-hero-img wide" src="../images/LPMs9.png" alt="M.2 M-key and E-key socket schematic" onclick="openLightbox(this.src, this.alt)">
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Stack-up &amp; Controlled Impedance</h2>
+          <p>I used the NextPCB stack-up calculator to find the right trace widths for this board. The stack-up is 4 layers: Signal, GND, PWR+GND, Signal. With this stack-up I got the widths for three impedance targets: 90 Ω differential, 100 Ω differential and 50 Ω single-ended. Every high-speed line was routed with these widths so the signal sees a constant impedance from the module to the connector.</p>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>PCB Layout &amp; High-Speed Design</h2>
+          <p style="margin-bottom:16px;">The module sits in the middle with a heatsink and fan, and the connectors are placed around the edges. All high-speed differential pairs are shorter than 75 mm, which is very good for this kind of board. I did skew tuning inside each pair so both traces arrive at the same time. I kept return paths short and used the solid GND layer under the signals to reduce EMI. I also collected the footprints from different trusted sources and checked them carefully against the datasheets.</p>
+          <div class="proj-gallery">
+            <img class="proj-hero-img" src="../images/LPMl4.png" alt="Component placement of the LattePanda Mu carrier board" onclick="openLightbox(this.src, this.alt)">
+            <img class="proj-hero-img" src="../images/LPMl1.png" alt="Routed PCB layout with copper pours" onclick="openLightbox(this.src, this.alt)">
+            <img class="proj-hero-img" src="../images/LPMl2.png" alt="Routed PCB layout showing bottom layer traces" onclick="openLightbox(this.src, this.alt)">
+            <img class="proj-hero-img" src="../images/LPMl3.png" alt="PCB layout showing inner plane layer" onclick="openLightbox(this.src, this.alt)">
+          </div>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Design Checks</h2>
+          <ul>
+            <li>Trace widths for 90 Ω, 100 Ω and 50 Ω taken from the stack-up calculator.</li>
+            <li>All high-speed differential pairs checked to be under 75 mm.</li>
+            <li>Skew tuning done on the differential pairs.</li>
+            <li>Footprints checked against datasheets from different sources.</li>
+            <li>HQDFM manufacturing check gave very good results.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 3D render -->
+      <div class="proj-gallery" style="grid-template-columns:1fr;">
+        <img class="proj-hero-img wide" src="../images/LPM3d.png" alt="LattePanda Mu carrier board 3D render" onclick="openLightbox(this.src, this.alt)">
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Conclusion</h2>
+          <p>
+            This project taught me how to turn a reference design into my own board. I learned how to choose what to keep and what to remove, and how to plan a stack-up for controlled impedance. I also got practice routing USB 3.0, HDMI, Ethernet and M.2 lines on a 4-layer board while keeping them short, matched and clean. It is a good base for a full single-board computer, and the PCIe slot can be added in a next version.
+          </p>
+        </div>
+      </div>
+
+      <div class="card proj-card" style="margin-top:20px;">
+        <div class="proj-sec" style="margin-bottom:0;">
+          <h2>Related Files</h2>
+          <div class="file-grid">
+            <a class="file-chip" href="../files/lattepanda-mu-report.pdf" target="_blank" rel="noopener noreferrer">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></svg></span>
+              <span class="file-txt">Project Report<em>PDF</em></span>
+            </a>
+            <a class="file-chip" href="../files/lattepanda-mu-schematic.pdf" target="_blank" rel="noopener noreferrer">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l1-3 2 6 2-6 2 6 2-6 1 3h4"/></svg></span>
+              <span class="file-txt">Schematic<em>PDF</em></span>
+            </a>
+            <a class="file-chip" href="../files/lattepanda-mu-layout.pdf" target="_blank" rel="noopener noreferrer">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.3" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.3" fill="currentColor" stroke="none"/><path d="M9.3 8H16v6.7"/></svg></span>
+              <span class="file-txt">PCB Layout<em>PDF</em></span>
+            </a>
+            <a class="file-chip" href="../files/lattepanda-mu-design-files.zip" target="_blank" rel="noopener noreferrer">
+              <span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+              <span class="file-txt">KiCad Design Files<em>ZIP</em></span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-in">
+      <div class="footer-brand">
+        <div class="logo"><a href="../index.html"><span class="logo-mark"></span>Portfolio</a></div>
+        <p>A portfolio and knowledge-sharing platform for electronics &amp; embedded systems engineering.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Site</h4>
+        <a href="../index.html">Home</a>
+        <a href="../about.html">About</a>
+        <a href="../projects.html">Projects</a>
+        <a href="../skills.html">Skills</a>
+      </div>
+      <div class="footer-col">
+        <h4>More</h4>
+        <a href="../certifications.html">Certifications</a>
+        <a href="../contact.html">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <a href="https://www.linkedin.com/in/abdul-basit-fiaz-1138a427a" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://github.com/ABasit0010" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://youtube.com/@excellencewithelectromania1?si=0SN2yeCCjKuNkH5s">Youtube</a>
+        <a href="mailto:abasitofficial007@gmail.com">Email</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Abdul Basit. All rights reserved.</p>
+      <a href="#" class="back-to-top" aria-label="Back to top" title="Back to top">↑</a>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+
+  <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+    <img id="lightboxImg" src="" alt="">
+  </div>
+  <script>
+    function openLightbox(src, alt) {
+      var overlay = document.getElementById('lightboxOverlay');
+      var img = document.getElementById('lightboxImg');
+      img.src = src;
+      img.alt = alt || '';
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      var overlay = document.getElementById('lightboxOverlay');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  </script>
+
+</body>
+</html>
